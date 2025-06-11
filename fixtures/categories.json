@@ -1,0 +1,26 @@
+[
+{
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+        "name": "Electronics",
+        "description": "Devices and gadgets"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+        "name": "Books",
+        "description": "Literature and educational materials"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+        "name": "Clothing",
+        "description": "Apparel and accessories"
+    }
+}
+]
