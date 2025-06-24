@@ -1,0 +1,7 @@
+<h1>{{ post.title }}</h1>
+<p>{{ post.content }}</p>
+{% if post.preview %}
+  <img src="{{ post.preview.url }}" alt="Превью" width="300">
+{% endif %}
+<p>Просмотры: {{ post.views_count }}</p>
+<a href="{% url 'blog:list' %}">Назад к списку</a>
