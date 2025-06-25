@@ -1,11 +1,10 @@
 # catalog/urls.py
 
 from django.urls import path
-from . import views
+from catalog.views import HomeView, ContactView, ProductDetailView
 
 urlpatterns = [
-    path('', views.home, name='home'),  # Маршрут для домашней страницы
-    path('contacts/', views.contact, name='contacts'),  # Маршрут для страницы контактов
-    path('product/<int:pk>/', views.product_detail, name='product_detail'), # Маршрут для описание товаров
-
+    path('', HomeView.as_view(), name='home'),
+    path('contacts/', ContactView.as_view(), name='contacts'),
+    path('product/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
 ]

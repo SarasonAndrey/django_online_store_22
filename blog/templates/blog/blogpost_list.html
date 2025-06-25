@@ -1,0 +1,10 @@
+<h1>Блог</h1>
+<ul>
+  {% for post in posts %}
+    <li>
+      <a href="{% url 'blog:detail' post.pk %}">{{ post.title }}</a>
+      ({{ post.created_at }})
+    </li>
+  {% endfor %}
+</ul>
+<a href="{% url 'blog:create' %}">Добавить запись</a>
