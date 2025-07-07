@@ -1,16 +1,20 @@
 from django.contrib import admin
 from .models import Category, Product
 
-# Настройка отображения для модели Category
+
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')  # Поля, которые будут отображаться в списке
+    """Категории: отображение ID и названия."""
 
-# Настройка отображения для модели Product
+    list_display = ("id", "name")
+
+
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'purchase_price', 'category')  # Поля, которые будут отображаться в списке
-    list_filter = ('category',)  # Фильтрация по категории
-    search_fields = ('name', 'description')  # Поиск по полям name и description
+    """Продукты: список (ID, название, цена, категория), фильтр по категории, поиск по имени и описанию."""
 
-# Регистрация моделей
+    list_display = ("id", "name", "purchase_price", "category")
+    list_filter = ("category",)
+    search_fields = ("name", "description")
+
+
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
