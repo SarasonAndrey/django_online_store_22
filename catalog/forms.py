@@ -39,8 +39,8 @@ class ProductForm(forms.ModelForm):
 
         for field_name, field in self.fields.items():
             if (
-                field_name != "subscribe"
-                and field.widget.__class__.__name__ != "HiddenInput"
+                    field_name != "subscribe"
+                    and field.widget.__class__.__name__ != "HiddenInput"
             ):
                 field.widget.attrs["class"] = "form-control"
                 field.widget.attrs["placeholder"] = f"Введите {field.label.lower()}"
