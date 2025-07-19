@@ -12,8 +12,12 @@
     {% endif %}
 
     <br>
-    <a href="{% url 'product_update' product.id %}" class="btn btn-warning mt-3">Редактировать</a>
-    <a href="{% url 'product_delete' product.id %}" class="btn btn-danger mt-3">Удалить</a>
+    <{% if user.is_authenticated %}
+  <p>
+    <a href="{% url 'product_update' pk=product.pk %}">Редактировать</a> |
+    <a href="{% url 'product_delete' pk=product.pk %}">Удалить</a>
+  </p>
+    {% endif %}
     <a href="{% url 'home' %}" class="btn btn-primary mt-3">Назад к списку товаров</a>
 </div>
 {% endblock %}

@@ -16,6 +16,12 @@
     {% include "menu.html" %}
 </nav>
 
+{% if user.is_authenticated %}
+  <p>Привет, {{ user.email }}</p>
+  <p><a href="{% url 'edit_profile' %}">Редактировать профиль</a></p>
+  <p><a href="{% url 'logout' %}">Выход</a></p>
+{% endif %}
+
 
 <div class="container">
     {% block content %}
