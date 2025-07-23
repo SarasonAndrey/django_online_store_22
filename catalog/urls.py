@@ -6,7 +6,7 @@ from catalog.views import (
     ProductDetailView,
     ProductCreateView,
     ProductUpdateView,
-    ProductDeleteView,
+    ProductDeleteView, ProductUnpublishView,
 )
 
 urlpatterns = [
@@ -15,7 +15,6 @@ urlpatterns = [
     path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
     path("product/new/", ProductCreateView.as_view(), name="product_create"),
     path("product/<int:pk>/edit/", ProductUpdateView.as_view(), name="product_update"),
-    path(
-        "product/<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"
-    ),
+    path("product/<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"),
+    path("product/<int:pk>/unpublish/", ProductUnpublishView.as_view(), name="product_unpublish")
 ]

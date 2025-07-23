@@ -32,6 +32,16 @@ class Product(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True, verbose_name="дата последнего изменения"
     )
+    is_published = models.BooleanField(
+        default=False,
+        verbose_name="Опубликовано",
+        help_text="Товар отображается на сайте"
+    )
+    owner = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        verbose_name="владелец"
+    )
 
     def __str__(self):
         return self.name
@@ -40,3 +50,6 @@ class Product(models.Model):
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
         ordering = ["name"]
+        permissions = [
+            ("can_unpublish_product", "Может отменять публикацию товара"),
+        ]

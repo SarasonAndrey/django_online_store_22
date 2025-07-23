@@ -1,23 +1,10 @@
-{% extends "base.html" %}
-{% block title %}{{ product.name }} — Skystore{% endblock %}
+{% if user == product.owner %}
+    <p>
+        <a href="{% url 'product_update' pk=product.pk %}">Редактировать</a> |
+        <a href="{% url 'product_delete' pk=product.pk %}">Удалить</a>
+    </p>
+{% endif %}
 
-{% block content %}
-<div class="container mt-5">
-    <h1>{{ product.name }}</h1>
-    <p><strong>Описание:</strong> {{ product.description }}</p>
-    <p><strong>Цена:</strong> {{ product.purchase_price }} ₽</p>
-
-    {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid" style="max-width: 300px;">
-    {% endif %}
-
-    <br>
-    <{% if user.is_authenticated %}
-  <p>
-    <a href="{% url 'product_update' pk=product.pk %}">Редактировать</a> |
-    <a href="{% url 'product_delete' pk=product.pk %}">Удалить</a>
-  </p>
-    {% endif %}
-    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Назад к списку товаров</a>
-</div>
-{% endblock %}
+{% if user.has_perm "catalog.can_unpublish_product" %}
+    <p><a href="{% url 'product_unpublish' pk=product.pk %}">Отменить публикацию</a></p>
+{% endif %}
