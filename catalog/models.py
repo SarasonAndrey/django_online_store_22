@@ -35,12 +35,10 @@ class Product(models.Model):
     is_published = models.BooleanField(
         default=False,
         verbose_name="Опубликовано",
-        help_text="Товар отображается на сайте"
+        help_text="Товар отображается на сайте",
     )
     owner = models.ForeignKey(
-        "users.User",
-        on_delete=models.CASCADE,
-        verbose_name="владелец"
+        "users.User", on_delete=models.CASCADE, verbose_name="владелец"
     )
 
     def __str__(self):
