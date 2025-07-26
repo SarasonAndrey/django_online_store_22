@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
@@ -41,6 +42,10 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     login_url = "/accounts/login/"
     redirect_field_name = "redirect_to"
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование продукта. Только для авторизованных."""
@@ -53,9 +58,30 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
-    """Удаление продукта. Только для авторизованных."""
+    """Удаление товара: владелец или модератор."""
     model = Product
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("home")
-    login_url = "/accounts/login/"
-    redirect_field_name = "redirect_to"
+
+    def dispatch(self, request, *args, **kwargs):
+        product = self.get_object()
+        if product.owner != request.user and not request.user.groups.filter(name="Модератор продуктов").exists():
+            raise PermissionDenied("Нет прав на удаление")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ProductUnpublishView(UpdateView):
+    """Отмена публикации. Только для модератора."""
+    model = Product
+    fields = ['is_published']
+    template_name = "catalog/product_unpublish.html"
+    success_url = reverse_lazy("home")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm("catalog.can_unpublish_product"):
+            raise PermissionDenied("Нет прав")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.is_published = False
+        return super().form_valid(form)
