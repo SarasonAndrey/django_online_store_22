@@ -42,25 +42,16 @@ class User(AbstractUser):
 
     # Дополнительные поля
     avatar = models.ImageField(
-        upload_to="avatars/",
-        blank=True,
-        null=True,
-        verbose_name="Аватар"
+        upload_to="avatars/", blank=True, null=True, verbose_name="Аватар"
     )
     phone = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        verbose_name="Номер телефона"
+        max_length=20, blank=True, null=True, verbose_name="Номер телефона"
     )
     country = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        verbose_name="Страна"
+        max_length=100, blank=True, null=True, verbose_name="Страна"
     )
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     objects = UserManager()

@@ -1,10 +1,34 @@
-{% if user == product.owner %}
-    <p>
-        <a href="{% url 'product_update' pk=product.pk %}">Редактировать</a> |
-        <a href="{% url 'product_delete' pk=product.pk %}">Удалить</a>
-    </p>
-{% endif %}
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ product.name }}</h1>
+    <p><strong>Описание:</strong> {{ product.description }}</p>
+    <p><strong>Цена:</strong> {{ product.purchase_price }} ₽</p>
 
-{% if user.has_perm "catalog.can_unpublish_product" %}
-    <p><a href="{% url 'product_unpublish' pk=product.pk %}">Отменить публикацию</a></p>
-{% endif %}
+    {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid" style="max-width: 300px;">
+    {% endif %}
+
+    {% if user == product.owner %}
+        <p>
+            <a href="{% url 'product_update' pk=product.pk %}">Редактировать</a> |
+            <a href="{% url 'product_delete' pk=product.pk %}">Удалить</a>
+        </p>
+    {% endif %}
+
+    <p>
+    Категория:
+    <a href="{% url 'products_by_category' pk=product.category.pk %}">
+        {{ product.category.name }}
+    </a>
+    </p>
+
+    {% if is_moderator %}
+        <p>
+            <a href="{% url 'product_unpublish' pk=product.pk %}">Отменить публикацию</a>
+        </p>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Назад к списку товаров</a>
+</div>
+{% endblock %}
