@@ -1,60 +1,64 @@
+# catalog/views.py
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
     DeleteView,
+    DetailView,
     ListView,
     TemplateView,
     UpdateView,
 )
-
 from .forms import ProductForm
 from .models import Category, Product
 from .services.product_service import get_products_by_category
 
 
-def home_view(request):
-    """Главная страница с низкоуровневым кешированием списка продуктов."""
-    cache_key = "published_products"
-    products = cache.get(cache_key)
+class HomeView(ListView):
+    """Главная страница с кэшированием списка опубликованных продуктов."""
+    model = Product
+    template_name = "catalog/home.html"
+    context_object_name = "products"
+    paginate_by = 10
 
-    if products is None:
-        products = Product.objects.filter(is_published=True).select_related(
-            "category", "owner"
-        )
-
-        cache.set(cache_key, products, 60 * 15)
-
-    return render(request, "catalog/home.html", {"products": products})
+    def get_queryset(self):
+        cache_key = "published_products"
+        products = cache.get(cache_key)
+        if products is None:
+            products = list(
+                Product.objects.filter(is_published=True)
+                .select_related("category", "owner")
+            )
+            cache.set(cache_key, products, 60 * 15)  # 15 минут
+        return products
 
 
 class ContactView(TemplateView):
     """Страница контактов"""
-
     template_name = "catalog/contacts.html"
 
 
-def product_detail(request, pk):
-    """Детали продукта с кешированием."""
+class ProductDetailView(DetailView):
+    """Детали продукта с кэшированием."""
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
 
-    cache_key = f"product_{pk}"
-    product = cache.get(cache_key)
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        cache_key = f"product_{obj.pk}"
+        cached = cache.get(cache_key)
+        if cached is None:
+            cache.set(cache_key, obj, 60 * 15)
+        return obj
 
-    if product is None:
-        product = get_object_or_404(Product, pk=pk)
-
-        cache.set(cache_key, product, 60 * 15)
-
-    is_moderator = request.user.has_perm("catalog.can_unpublish_product")
-
-    return render(
-        request,
-        "catalog/product_detail.html",
-        {"product": product, "is_moderator": is_moderator},
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_moderator"] = self.request.user.has_perm("catalog.can_unpublish_product")
+        return context
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
@@ -73,7 +77,6 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование товара. Сбрасывает кеш."""
-
     model = Product
     form_class = ProductForm
     template_name = "catalog/product_form.html"
@@ -93,7 +96,6 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
 
 class ProductDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление товара: владелец или модератор."""
-
     model = Product
     template_name = "catalog/product_confirm_delete.html"
     success_url = reverse_lazy("home")
@@ -115,7 +117,6 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
 
 class ProductUnpublishView(UpdateView):
     """Отмена публикации. Сбрасывает кеш."""
-
     model = Product
     fields = ["is_published"]
     template_name = "catalog/product_unpublish.html"
@@ -129,21 +130,17 @@ class ProductUnpublishView(UpdateView):
     def form_valid(self, form):
         form.instance.is_published = False
         response = super().form_valid(form)
-
         cache.delete(f"product_{self.object.pk}")
         cache.delete("published_products")
         return response
 
 
 class ProductsByCategoryView(ListView):
-    """
-    Отображает все товары в указанной категории.
-    """
-
+    """Отображает все товары в указанной категории."""
     model = Product
     template_name = "catalog/products_by_category.html"
     context_object_name = "products"
-    paginate_by = 10  # Опционально: пагинация
+    paginate_by = 10
 
     def get_queryset(self):
         self.category = get_object_or_404(Category, pk=self.kwargs["pk"])
